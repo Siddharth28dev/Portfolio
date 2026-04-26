@@ -1,0 +1,176 @@
+import React, { useEffect, useState } from 'react'; 
+import { Timeline } from 'primereact/timeline';
+import { Card } from 'primereact/card';
+import { Button } from 'primereact/button';
+import { Img, VStack } from '@chakra-ui/react';
+//import vgecLogo from '../images/vgeclogo.png';
+//import argusoftLogo from '../images/argusoftLogo.png';
+import { AnimationOnScroll } from 'react-animation-on-scroll';
+
+export default function Career() {
+    const [timelineAlign, setTimelineAlign] = useState('alternate');
+    const [expandedCards, setExpandedCards] = useState({});
+
+    const toggleExpand = (index) => {
+        setExpandedCards(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
+    };
+
+    const events = [
+        { 
+            status: 'B.tech in Computer Science', 
+            date: '2023-2027', 
+            // image: vgecLogo ,
+            description: 'Currently pursuing a B.Tech in Computer Science from United Institute of Technology, where I am building a strong foundation in core CS principles. As part of my academic curriculum, I have successfully completed a summer training on Core Java with Collection Framework. I am actively engaged in developing a new project to apply and expand my technical skills.'
+        },
+        { 
+            status: 'Summer Intern', 
+            date: 'August 2023', 
+            // image: argusoftLogo,
+            description: 'As a summer intern at United Institute of Technology, I developed a Bank Management System project. I leveraged Core Java principles, including Object-Oriented Programming (OOP), to build a system for managing bank accounts and transactions. I utilized a SQL database for data persistence, ensuring reliable storage for all account information. This project enhanced my practical skills in Java programming and database integration.'
+        },
+        // { 
+        //     status: 'Programmer Analyst Intern', 
+        //     date: 'Jan 2024 - Jun 2024', 
+        //     image: argusoftLogo,
+        //     description: 'During my tenure as a Programmer Analyst Intern at Argusoft, we were paired with a team of 9, where I trained my skills in Angular and Java. Our primary project was the development of a full-stack Canteen Management WebApp, leveraging Angular, Java, PostgreSQL, Git, and Chart.js. Throughout the internship, we maintained daily stand-up calls to ensure seamless collaboration and progress tracking.'
+        // },
+        // { 
+        //     status: 'Programmer Analyst Trainee', 
+        //     date: 'Jul 2024 - Dec 2024', 
+        //     image: argusoftLogo ,
+        //     description: "As a Programmer Analyst Trainee at Argusoft, I was partnered with a peer under the mentorship of Mrs. Namrata Raval to master React, Java Spring Boot, and PostgreSQL using Udemy courses and diverse learning resources. We developed the FlightEase project, a secure, responsive web app for booking flight tickets, featuring Spring Security and Google login."
+        // },
+        // { 
+        //     status: 'Programmer Analyst', 
+        //     date: 'Jan 2025 - Present', 
+        //     image: argusoftLogo ,
+        //     description: 'As a full-time Programmer Analyst, I initially focused on training in React Native, where I developed a proof-of-concept chat app featuring pagination, batching, WebSocket integration, and mobile OTP login. Currently, I am actively involved in projects utilizing React Native and Spring Boot, contributing to the development of robust and scalable applications.'
+        // }
+    ];
+
+    const customizedContent = (item, index) => {
+        const alignment = index % 2 === 0 ? 'left' : 'right';
+        const imageStyle = {
+            margin: window.innerWidth>768? alignment === 'right' ? '0 0 5% auto' : '0 auto 5% 0' : '0 auto 5% auto',
+        };
+
+        const isMobile = window.innerWidth < 768;
+        const isExpanded = expandedCards[index];
+
+        return (
+            <Card title={item.status} subTitle={item.date}>
+                <Img 
+                    src={item.image}
+                    height={'28'} 
+                    width={'28'}
+                    style={imageStyle}
+                    className='TimelineCardImg'
+                />
+                {isMobile ? (
+                    <div>
+                        <p style={{
+                            fontSize: '3.5vw',
+                            textAlign: 'justify',
+                            maxHeight: isExpanded ? 'none' : '120px',
+                            overflow: 'hidden',
+                            transition: 'max-height 0.3s ease-out'
+                        }}>
+                            {item.description}
+                        </p>
+                        <Button
+                            link
+                            onClick={() => toggleExpand(index)}
+                            style={{
+                                color: '#c770f0',
+                                padding: '0.5rem 0',
+                                fontSize: '0.9rem'
+                            }}
+                        >
+                            {isExpanded ? 'Show Less' : 'Show More'}
+                        </Button>
+                    </div>
+                ) : (
+                    <p style={{
+                        fontSize: '1vw',
+                        textAlign: 'inherit'
+                    }}>
+                        {item.description}
+                    </p>
+                )}
+            </Card>
+        );
+    };
+
+    // Handle responsive layout
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 768) {
+                setTimelineAlign('left');
+            } else {
+                setTimelineAlign('alternate');
+            }
+        };
+
+        // Initial check
+        handleResize();
+
+        // Add event listener
+        window.addEventListener('resize', handleResize);
+
+        // Cleanup
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Modify the Intersection Observer
+    useEffect(() => {
+        const observerOptions = {
+            root: null,
+            rootMargin: '-100px 0px',  // Only trigger when element is 100px into viewport
+            threshold: 0.3  // Increased threshold - requires more visibility
+        };
+
+        const handleIntersection = (entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(handleIntersection, observerOptions);
+
+        // Observe the timeline event contents
+        document.querySelectorAll('.p-timeline-event-content').forEach(content => {
+            observer.observe(content);
+        });
+
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <VStack
+            className="contactForm"
+            alignItems="center"
+            w={window.innerWidth>768?'90%':'100%'}
+            style={{marginTop:"50px"}}
+        >
+            <AnimationOnScroll animateIn="animate__fadeInUp" duration="2" animateOnce={"once"}>
+                <h1 className="project-heading" style={{marginBottom:"20%"}}>
+                    Career <strong className="purple">Timeline </strong>
+                </h1>
+            {/* <Heading id='career' as="h1" style={{paddingBottom: "5%"}}>Career <strong className="purple">Timeline</strong></Heading> */}
+            </AnimationOnScroll>
+            <AnimationOnScroll animateIn="animate__fadeInUp" duration="2" animateOnce={"once"} offset={-100}>
+            <Timeline 
+                value={events} 
+                align={timelineAlign}
+                content={(item, index) => customizedContent(item, index)}
+                className="custom-timeline"
+            />
+            </AnimationOnScroll>
+        </VStack>
+    );
+}
